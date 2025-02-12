@@ -12,7 +12,7 @@
 #
 
 #
-#SBATCH --partition=gpu
+#SBATCH --partition=normal
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
 
@@ -21,10 +21,10 @@
 #SBATCH --error=results/hw1_%j_stderr.txt
 
 #SBATCH --time=00:05:00
-#SBATCH --job-name=hw0
+#SBATCH --job-name=hw1
 #SBATCH --mail-user=Enzo.B.Durel-1@ou.edu
 #SBATCH --mail-type=ALL
-#SBATCH --chdir=/home/cs504305/hw1
+#SBATCH --chdir=/home/cs504305/hw1/code
 #
 #################################################
 # Do not change this line unless you have your own python/tensorflow/keras set up
@@ -47,5 +47,5 @@ python hw1_base_skel.py --exp_type $EXPERIMENT_TYPE \
                          --epochs 1000 \
                          --hidden 10 5 \
                          --lrate 0.001 \
-                         --verbose 1
+                         -vv
 
