@@ -20,7 +20,7 @@
 #SBATCH --output=results/hw1_%j_stdout.txt
 #SBATCH --error=results/hw1_%j_stderr.txt
 
-#SBATCH --time=00:05:00
+#SBATCH --time=00:20:00
 #SBATCH --job-name=hw1
 #SBATCH --mail-user=Enzo.B.Durel-1@ou.edu
 #SBATCH --mail-type=ALL
