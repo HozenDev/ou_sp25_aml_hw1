@@ -126,6 +126,9 @@ def plot_figure_1(time_testing, outs_testing, predict_testing):
     true_accel_shoulder = outs_testing[:, 0]  # First column
     pred_vel_shoulder = predict_testing[:, 0]  # First column
 
+    # Stretch the x axis
+    plt.figure(figsize=(12, 5))
+    
     # Plot true acceleration
     plt.plot(time_testing, true_accel_shoulder, label="True Acceleration", linestyle="dashed")
 
