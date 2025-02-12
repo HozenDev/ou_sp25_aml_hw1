@@ -47,7 +47,7 @@ python hw1_base_skel.py --exp_type $EXPERIMENT_TYPE \
                          --activation_out 'tanh' \
                          --activation_hidden 'relu' \
                          --epochs 500 \
-                         --hidden 14 8 \
-                         --lrate 0.001 \
+                         --hidden 20 10 \
+                         --lrate 0.0008 \
                          -vv
 
