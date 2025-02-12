@@ -7,7 +7,7 @@ from keras.regularizers import l1, l2
 def deep_network_basic(n_inputs:int,
                        n_hidden:list,
                        n_output:int,
-                       hidden_activation:str='elu',
+                       activation:str='elu',
                        output_activation:str='linear',
                        dropout:float=0.0,
                        dropout_input:float=0.0,
@@ -33,7 +33,7 @@ def deep_network_basic(n_inputs:int,
         model.add(Dropout(dropout_input))
     
     for i, n in enumerate(n_hidden):
-        model.add(Dense(n, activation=hidden_activation, name=f'hidden{i}'))
+        model.add(Dense(n, activation=activation, name=f'hidden{i}'))
         if dropout > 0.0:
             model.add(Dropout(dropout))
 
