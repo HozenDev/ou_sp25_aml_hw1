@@ -44,13 +44,14 @@ EXP_INDEX=$SLURM_ARRAY_TASK_ID
 # Execute the experiment
 python hw1_base_skel.py --exp_type $EXPERIMENT_TYPE \
                          --dataset $DATASET \
-                         --Ntraining 14 \
+                         --Ntraining 15 \
                          --rotation $ROTATION \
                          --activation_out 'linear' \
                          --activation_hidden 'elu' \
                          --epochs 300 \
-                         --hidden 15 10 \
+                         --hidden 10 5 \
                          --lrate 0.0001 \
                          --output_type dtheta \
+                         --patience 10 \
                          -vv
 
