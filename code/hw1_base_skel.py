@@ -110,6 +110,25 @@ def extract_data(bmi:dict, args:argparse.ArgumentParser)->[np.ndarray, np.ndarra
     
     return ins_training, outs_training, time_training, ins_validation, outs_validation, time_validation, ins_testing, outs_testing, time_testing, folds
 
+import pandas as pd
+
+def log_figure_1_wandb(time_testing, outs_testing, predict_testing):
+    """
+    :param time_testing: Timestamps for the test fold.
+    :param outs_testing: True acceleration values.
+    :param predict_testing: Predicted velocity values.
+    """
+    # Convert data into a Pandas DataFrame
+    df = pd.DataFrame({
+        "Time": time_testing.flatten(), 
+        "True Acceleration": outs_testing.flatten(), 
+        "Predicted Velocity": predict_testing.flatten()
+    })
+
+    # Log to wandb as a table
+    table = wandb.Table(dataframe=df)
+    wandb.log({"Figure 1": wandb.plot.line(table, "Time", ["True Acceleration", "Predicted Velocity"], 
+                                           title="True Acceleration vs. Predicted Velocity")})
 
 
 def exp_type_to_hyperparameters(args:argparse.ArgumentParser):
@@ -340,6 +359,9 @@ def execute_exp(args:argparse.ArgumentParser=None):
     results['folds'] = folds
     
     results['history'] = history.history
+
+    if not args.nowandb:
+        log_figure_1_wandb(time_testing, outs_testing, results['predict_testing'])
     
     # Save results
     results['fname_base'] = fbase
