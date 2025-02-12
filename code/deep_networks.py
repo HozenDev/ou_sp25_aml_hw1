@@ -4,17 +4,17 @@ from keras.optimizers import Adam
 from keras.regularizers import l1, l2
 
 # Define an improved deep_network_basic function
-def deep_network_basic_fixed(n_inputs:int,
-                             n_hidden:list,
-                             n_output:int,
-                             hidden_activation:str='elu',
-                             output_activation:str='linear',
-                             dropout:float=0.0,
-                             dropout_input:float=0.0,
-                             kernel_regularizer:float=0.0,
-                             kernel_regularizer_L1:float=0.0,
-                             metrics=['mse'],
-                             lrate:float=0.001) -> Sequential:
+def deep_network_basic(n_inputs:int,
+                       n_hidden:list,
+                       n_output:int,
+                       hidden_activation:str='elu',
+                       output_activation:str='linear',
+                       dropout:float=0.0,
+                       dropout_input:float=0.0,
+                       kernel_regularizer:float=0.0,
+                       kernel_regularizer_L1:float=0.0,
+                       metrics=['mse'],
+                       lrate:float=0.001) -> Sequential:
     """
     Constructs a sequential neural network model with proper output activation.
 
