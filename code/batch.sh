@@ -44,10 +44,10 @@ python hw1_base_skel.py --exp_type $EXPERIMENT_TYPE \
                          --dataset $DATASET \
                          --Ntraining ${NTRAINING_VALUES[$EXP_INDEX]} \
                          --rotation $ROTATION \
-                         --activation_out 'elu' \
+                         --activation_out 'linear' \
                          --activation_hidden 'elu' \
                          --epochs 500 \
-                         --hidden 20 10 \
-                         --lrate 0.0008 \
+                         --hidden 14 8 \
+                         --lrate 0.001 \
                          -vv
 
