@@ -110,17 +110,18 @@ def extract_data(bmi:dict, args:argparse.ArgumentParser)->[np.ndarray, np.ndarra
     
     return ins_training, outs_training, time_training, ins_validation, outs_validation, time_validation, ins_testing, outs_testing, time_testing, folds
 
-def log_figure_1_wandb(time_testing, outs_testing, predict_testing):
+def plot_figure_1_matplotlib(time_testing, outs_testing, predict_testing):
     """
-    Logs Figure 1 (True Acceleration vs. Predicted Velocity) directly in wandb.
+    Generates Figure 1: True Acceleration vs. Predicted Velocity (Shoulder & Elbow) using Matplotlib.
+
     :param time_testing: (1498, 1) timestamps for the test fold.
     :param outs_testing: (1498, 2) true acceleration (shoulder, elbow).
     :param predict_testing: (1498, 2) predicted velocity (shoulder, elbow).
     """
 
-    # Ensure they are NumPy arrays and flatten time
+    # Ensure time is a 1D array
     time_testing = np.array(time_testing).flatten()  # Shape (1498,)
-    
+
     # Extract shoulder and elbow data separately
     true_accel_shoulder = outs_testing[:, 0]  # First column
     true_accel_elbow = outs_testing[:, 1]  # Second column
@@ -128,26 +129,35 @@ def log_figure_1_wandb(time_testing, outs_testing, predict_testing):
     pred_vel_shoulder = predict_testing[:, 0]  # First column
     pred_vel_elbow = predict_testing[:, 1]  # Second column
 
-    # Convert to DataFrame
-    df = pd.DataFrame({
-        "Time": time_testing,
-        "True Acceleration (Shoulder)": true_accel_shoulder,
-        "True Acceleration (Elbow)": true_accel_elbow,
-        "Predicted Velocity (Shoulder)": pred_vel_shoulder,
-        "Predicted Velocity (Elbow)": pred_vel_elbow
-    })
+    # Create a figure with two subplots
+    fig, axes = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
 
-    # Log to wandb as a table and line plot
-    table = wandb.Table(dataframe=df)
-    wandb.log({"Figure 1": wandb.plot.line(
-        table, "Time", ["True Acceleration (Shoulder)", "Predicted Velocity (Shoulder)"],
-        title="True Acceleration vs. Predicted Velocity (Shoulder)"
-    )})
-    
-    wandb.log({"Figure 1 - Elbow": wandb.plot.line(
-        table, "Time", ["True Acceleration (Elbow)", "Predicted Velocity (Elbow)"],
-        title="True Acceleration vs. Predicted Velocity (Elbow)"
-    )})
+    # Plot Shoulder Acceleration vs. Predicted Velocity
+    axes[0].plot(time_testing, true_accel_shoulder, label="True Acceleration (Shoulder)", linestyle="dashed")
+    axes[0].plot(time_testing, pred_vel_shoulder, label="Predicted Velocity (Shoulder)", linestyle="solid")
+    axes[0].set_xlabel("Time (s)")
+    axes[0].set_ylabel("Acceleration / Velocity")
+    axes[0].set_title("Shoulder: True Acceleration vs. Predicted Velocity")
+    axes[0].legend()
+    axes[0].grid()
+
+    # Plot Elbow Acceleration vs. Predicted Velocity
+    axes[1].plot(time_testing, true_accel_elbow, label="True Acceleration (Elbow)", linestyle="dashed")
+    axes[1].plot(time_testing, pred_vel_elbow, label="Predicted Velocity (Elbow)", linestyle="solid")
+    axes[1].set_xlabel("Time (s)")
+    axes[1].set_ylabel("Acceleration / Velocity")
+    axes[1].set_title("Elbow: True Acceleration vs. Predicted Velocity")
+    axes[1].legend()
+    axes[1].grid()
+
+    # Adjust layout
+    plt.tight_layout()
+
+    # Save the figure
+    plt.savefig("figure_1.png")
+
+    # Log the figure in wandb
+    wandb.log({"Figure 1": wandb.Image("figure_1.png")})
 
 
 def exp_type_to_hyperparameters(args:argparse.ArgumentParser):
