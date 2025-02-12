@@ -120,46 +120,30 @@ def plot_figure_1(time_testing, outs_testing, predict_testing):
     """
 
     # Ensure time is a 1D array
-    time_testing = np.array(time_testing).flatten()  # Shape (1498,)
+    time_testing = np.array(time_testing).flatten()
 
     # Extract shoulder and elbow data separately
     true_accel_shoulder = outs_testing[:, 0]  # First column
-    true_accel_elbow = outs_testing[:, 1]  # Second column
-    
     pred_vel_shoulder = predict_testing[:, 0]  # First column
-    pred_vel_elbow = predict_testing[:, 1]  # Second column
 
-    # Create a figure with two subplots
-    fig, axes = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+    # Plot true acceleration
+    plt.plot(time_testing, true_accel_shoulder, label="True Acceleration", linestyle="dashed")
 
-    # Plot Shoulder Acceleration vs. Predicted Velocity
-    axes[0].plot(time_testing, true_accel_shoulder, label="True Acceleration (Shoulder)", linestyle="dashed")
-    axes[0].plot(time_testing, pred_vel_shoulder, label="Predicted Velocity (Shoulder)", linestyle="solid")
-    axes[0].set_xlabel("Time (s)")
-    axes[0].set_ylabel("Acceleration / Velocity")
-    axes[0].set_title("Shoulder: True Acceleration vs. Predicted Velocity")
-    axes[0].legend()
-    axes[0].grid()
+    # Plot predicted velocity
+    plt.plot(time_testing, pred_vel_shoulder, label="Predicted Velocity", linestyle="solid")
 
-    # Plot Elbow Acceleration vs. Predicted Velocity
-    axes[1].plot(time_testing, true_accel_elbow, label="True Acceleration (Elbow)", linestyle="dashed")
-    axes[1].plot(time_testing, pred_vel_elbow, label="Predicted Velocity (Elbow)", linestyle="solid")
-    axes[1].set_xlabel("Time (s)")
-    axes[1].set_ylabel("Acceleration / Velocity")
-    axes[1].set_title("Elbow: True Acceleration vs. Predicted Velocity")
-    axes[1].legend()
-    axes[1].grid()
+    # Formatting
+    plt.xlabel("Time (s)")
+    plt.ylabel("Acceleration / Velocity")
+    plt.title("True Acceleration vs Predicted Velocity Over Time")
+    plt.legend()
+    plt.grid()
 
-    # Adjust layout
-    plt.tight_layout()
-
-    # Save the figure
+    # Save and log to wandb
     plt.savefig("figure_1.png")
-
-    # Log the figure in wandb
     wandb.log({"Figure 1": wandb.Image("figure_1.png")})
 
-
+    
 def exp_type_to_hyperparameters(args:argparse.ArgumentParser):
     '''
     Translate the exp_type into a hyperparameter set
