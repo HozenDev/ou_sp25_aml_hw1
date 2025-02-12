@@ -47,7 +47,7 @@ python hw1_base_skel.py --exp_type $EXPERIMENT_TYPE \
                          --Ntraining 14 \
                          --rotation $ROTATION \
                          --activation_out 'tanh' \
-                         --activation_hidden 'relu' \
+                         --activation_hidden 'elu' \
                          --epochs 300 \
                          --hidden 15 10 \
                          --lrate 0.0001 \
