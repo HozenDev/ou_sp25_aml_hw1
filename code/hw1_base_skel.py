@@ -110,29 +110,44 @@ def extract_data(bmi:dict, args:argparse.ArgumentParser)->[np.ndarray, np.ndarra
     
     return ins_training, outs_training, time_training, ins_validation, outs_validation, time_validation, ins_testing, outs_testing, time_testing, folds
 
-import pandas as pd
-
 def log_figure_1_wandb(time_testing, outs_testing, predict_testing):
     """
-    :param time_testing: Timestamps for the test fold.
-    :param outs_testing: True acceleration values.
-    :param predict_testing: Predicted velocity values.
+    Logs Figure 1 (True Acceleration vs. Predicted Velocity) directly in wandb.
+    :param time_testing: (1498, 1) timestamps for the test fold.
+    :param outs_testing: (1498, 2) true acceleration (shoulder, elbow).
+    :param predict_testing: (1498, 2) predicted velocity (shoulder, elbow).
     """
 
-    print(time_testing.shape, outs_testing.shape, predict_testing.shape)
-    print(len(time_testing), len(outs_testing), len(predict_testing))
+    # Ensure they are NumPy arrays and flatten time
+    time_testing = np.array(time_testing).flatten()  # Shape (1498,)
+    
+    # Extract shoulder and elbow data separately
+    true_accel_shoulder = outs_testing[:, 0]  # First column
+    true_accel_elbow = outs_testing[:, 1]  # Second column
+    
+    pred_vel_shoulder = predict_testing[:, 0]  # First column
+    pred_vel_elbow = predict_testing[:, 1]  # Second column
 
-    # Convert data into a Pandas DataFrame
+    # Convert to DataFrame
     df = pd.DataFrame({
-        "Time": time_testing.flatten(), 
-        "True Acceleration": outs_testing.flatten(), 
-        "Predicted Velocity": predict_testing.flatten()
+        "Time": time_testing,
+        "True Acceleration (Shoulder)": true_accel_shoulder,
+        "True Acceleration (Elbow)": true_accel_elbow,
+        "Predicted Velocity (Shoulder)": pred_vel_shoulder,
+        "Predicted Velocity (Elbow)": pred_vel_elbow
     })
 
-    # Log to wandb as a table
+    # Log to wandb as a table and line plot
     table = wandb.Table(dataframe=df)
-    wandb.log({"Figure 1": wandb.plot.line(table, "Time", ["True Acceleration", "Predicted Velocity"], 
-                                           title="True Acceleration vs. Predicted Velocity")})
+    wandb.log({"Figure 1": wandb.plot.line(
+        table, "Time", ["True Acceleration (Shoulder)", "Predicted Velocity (Shoulder)"],
+        title="True Acceleration vs. Predicted Velocity (Shoulder)"
+    )})
+    
+    wandb.log({"Figure 1 - Elbow": wandb.plot.line(
+        table, "Time", ["True Acceleration (Elbow)", "Predicted Velocity (Elbow)"],
+        title="True Acceleration vs. Predicted Velocity (Elbow)"
+    )})
 
 
 def exp_type_to_hyperparameters(args:argparse.ArgumentParser):
