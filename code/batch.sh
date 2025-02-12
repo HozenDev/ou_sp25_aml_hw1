@@ -36,7 +36,7 @@ conda activate dnn
 EXPERIMENT_TYPE='bmi'
 DATASET='/home/fagg/datasets/bmi/bmi_dataset.pkl'
 NTRAINING_VALUES=(1 2 3 4 6 8 11 14 18)
-ROTATION=15
+ROTATION=5
 EXP_INDEX=$SLURM_ARRAY_TASK_ID  # Use SLURM array index
 
 # Execute the experiment
@@ -44,7 +44,7 @@ python hw1_base_skel.py --exp_type $EXPERIMENT_TYPE \
                          --dataset $DATASET \
                          --Ntraining ${NTRAINING_VALUES[$EXP_INDEX]} \
                          --rotation $ROTATION \
-                         --epochs 1000 \
+                         --epochs 500 \
                          --hidden 10 5 \
                          --lrate 0.001 \
                          -vv
