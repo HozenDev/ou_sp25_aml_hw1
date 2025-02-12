@@ -39,15 +39,15 @@ NTRAINING_VALUES=(1 2 3 4 6 8 11 14 18)
 ROTATION=5
 EXP_INDEX=$SLURM_ARRAY_TASK_ID
 
-# --Ntraining ${NTRAINING_VALUES[$EXP_INDEX]} \
-
 # Execute the experiment
 python hw1_base_skel.py --exp_type $EXPERIMENT_TYPE \
                          --dataset $DATASET \
-                         --Ntraining 6 \
+                         --Ntraining ${NTRAINING_VALUES[$EXP_INDEX]} \
                          --rotation $ROTATION \
+                         --activation_out 'elu' \
+                         --activation_hidden 'elu' \
                          --epochs 500 \
-                         --hidden 14 8 \
-                         --lrate 0.001 \
+                         --hidden 20 10 \
+                         --lrate 0.0008 \
                          -vv
 
