@@ -49,7 +49,7 @@ python hw1_base_skel.py --exp_type $EXPERIMENT_TYPE \
                          --activation_out 'linear' \
                          --activation_hidden 'relu' \
                          --epochs 500 \
-                         --hidden 20 10 \
-                         --lrate 0.0001 \
+                         --hidden 10 5 \
+                         --lrate 0.001 \
                          -vv
 
