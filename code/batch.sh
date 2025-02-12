@@ -49,8 +49,8 @@ python hw1_base_skel.py --exp_type $EXPERIMENT_TYPE \
                          --activation_out 'linear' \
                          --activation_hidden 'elu' \
                          --epochs 300 \
-                         --hidden 10 5\
-                         --lrate 0.00008 \
+                         --hidden 10 8 5\
+                         --lrate 0.00005 \
                          --output_type dtheta \
                          --patience 50 \
                          -vv
