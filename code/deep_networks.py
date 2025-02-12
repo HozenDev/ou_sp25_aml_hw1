@@ -34,7 +34,7 @@ def deep_network_basic(n_inputs:int,
     
     for i, n in enumerate(n_hidden):
         model.add(Dense(n, activation=activation, name=f'hidden{i}'))
-        if dropout > 0.0:
+        if dropout is not None and dropout > 0.0:
             model.add(Dropout(dropout))
 
     if kernel_regularizer is not None and kernel_regularizer > 0.0:
