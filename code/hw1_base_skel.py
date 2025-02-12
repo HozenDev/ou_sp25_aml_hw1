@@ -118,6 +118,16 @@ def log_figure_1_wandb(time_testing, outs_testing, predict_testing):
     :param outs_testing: True acceleration values.
     :param predict_testing: Predicted velocity values.
     """
+
+    print(len(time_testing), len(outs_testing), len(predict_testing))
+
+    # Trim all arrays to the same length
+    min_length = min(len(time_testing), len(outs_testing), len(predict_testing))
+    time_testing = time_testing[:min_length]
+    outs_testing = outs_testing[:min_length]
+    predict_testing = predict_testing[:min_length]
+
+    
     # Convert data into a Pandas DataFrame
     df = pd.DataFrame({
         "Time": time_testing.flatten(), 
