@@ -8,7 +8,7 @@ def deep_network_basic(n_inputs:int,
                        n_hidden:list,
                        n_output:int,
                        activation:str='elu',
-                       output_activation:str='linear',
+                       activation_out:str='linear',
                        dropout:float=0.0,
                        dropout_input:float=0.0,
                        kernel_regularizer:float=0.0,
@@ -38,13 +38,13 @@ def deep_network_basic(n_inputs:int,
             model.add(Dropout(dropout))
 
     if kernel_regularizer > 0.0:
-        model.add(Dense(n_output, activation=output_activation, 
+        model.add(Dense(n_output, activation=activation_out, 
                         name='output', kernel_regularizer=l2(kernel_regularizer)))
     elif kernel_regularizer_L1 > 0.0:
-        model.add(Dense(n_output, activation=output_activation, 
+        model.add(Dense(n_output, activation=activation_out, 
                         name='output', kernel_regularizer=l1(kernel_regularizer_L1)))
     else:
-        model.add(Dense(n_output, activation=output_activation, name='output'))
+        model.add(Dense(n_output, activation=activation_out, name='output'))
     
     opt = Adam(learning_rate=lrate)
     model.compile(loss='mse', optimizer=opt, metrics=metrics)
