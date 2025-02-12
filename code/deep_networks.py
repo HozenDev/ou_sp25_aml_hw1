@@ -29,7 +29,7 @@ def deep_network_basic(n_inputs:int,
     model = Sequential()
     model.add(InputLayer(shape=(n_inputs,)))
 
-    if dropout_input > 0.0:
+    if dropout_input is not None and dropout_input > 0.0:
         model.add(Dropout(dropout_input))
     
     for i, n in enumerate(n_hidden):
@@ -37,10 +37,10 @@ def deep_network_basic(n_inputs:int,
         if dropout > 0.0:
             model.add(Dropout(dropout))
 
-    if kernel_regularizer > 0.0:
+    if kernel_regularizer is not None and kernel_regularizer > 0.0:
         model.add(Dense(n_output, activation=activation_out, 
                         name='output', kernel_regularizer=l2(kernel_regularizer)))
-    elif kernel_regularizer_L1 > 0.0:
+    elif kernel_regularizer_L1 is not None and kernel_regularizer_L1 > 0.0:
         model.add(Dense(n_output, activation=activation_out, 
                         name='output', kernel_regularizer=l1(kernel_regularizer_L1)))
     else:
