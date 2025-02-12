@@ -46,10 +46,10 @@ python hw1_base_skel.py --exp_type $EXPERIMENT_TYPE \
                          --dataset $DATASET \
                          --Ntraining 6 \
                          --rotation $ROTATION \
-                         --activation_out 'tanh' \
-                         --activation_hidden 'elu' \
+                         --activation_out 'linear' \
+                         --activation_hidden 'relu' \
                          --epochs 300 \
-                         --hidden 10 5 \
+                         --hidden 15 8 \
                          --lrate 0.0001 \
                          --output_type dtheta \
                          -vv
