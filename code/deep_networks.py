@@ -16,27 +16,35 @@ def deep_network_basic(n_inputs:int,
                        metrics=['mse'],
                        lrate:float=0.001) -> Sequential:
     """
-    Constructs a sequential neural network model with proper output activation.
+    Constructs a sequential neural network model.
 
     :param n_inputs: Number of input features.
     :param n_hidden: List containing the number of neurons for each hidden layer.
     :param n_output: Number of output neurons.
-    :param hidden_activation: Activation function for the hidden layers.
-    :param output_activation: Activation function for the output layer.
-    :param lrate: Learning rate for the Adam optimizer.
+    :param activation: Activation function for the hidden layers.
+    :param activation_out: Activation function for the output layer.
+    :param dropout: Dropout rate for hidden layers.
+    :param dropout_input: Dropout rate for input layer.
+    :param kernel_regularizer: L2 regularization parameter.
+    :param kernel_regularizer_L1: L1 regularization parameter.
+    :param metrics: List of metrics to track during training.
+    :param lrate: Learning rate for the optimizer.
     :return: Compiled Keras sequential model.
     """
     model = Sequential()
     model.add(InputLayer(shape=(n_inputs,)))
 
+    # Dropout on INPUT layer
     if dropout_input is not None and dropout_input > 0.0:
         model.add(Dropout(dropout_input))
-    
+
+    # Hidden layer management
     for i, n in enumerate(n_hidden):
         model.add(Dense(n, activation=activation, name=f'hidden{i}'))
         if dropout is not None and dropout > 0.0:
             model.add(Dropout(dropout))
 
+    # Output layer management
     if kernel_regularizer is not None and kernel_regularizer > 0.0:
         model.add(Dense(n_output, activation=activation_out, 
                         name='output', kernel_regularizer=l2(kernel_regularizer)))
@@ -45,7 +53,8 @@ def deep_network_basic(n_inputs:int,
                         name='output', kernel_regularizer=l1(kernel_regularizer_L1)))
     else:
         model.add(Dense(n_output, activation=activation_out, name='output'))
-    
+
+    # Compile the model
     opt = Adam(learning_rate=lrate)
     model.compile(loss='mse', optimizer=opt, metrics=metrics)
     

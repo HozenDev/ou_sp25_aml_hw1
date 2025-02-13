@@ -34,19 +34,19 @@ tf_tools = "distribute/"
 
 sys.path.append(tf_tools)
 
-# Import model building tools
-from deep_networks import *
+# Import project modules
 
-# PROVIDED
+from deep_networks import *
+from plot_fig import *
 from symbiotic_metrics import *
 from job_control import *
 
-
-
-
 #################################################################
-def extract_data(bmi:dict, args:argparse.ArgumentParser)->[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray,
-                                                          np.ndarray, np.ndarray, np.ndarray, np.ndarray, dict]:
+#                     PKL File Management                       #
+#################################################################
+
+
+def extract_data(bmi:dict, args:argparse.ArgumentParser):
     '''
     Translate BMI data structure from the file into a data set for training/evaluating a single model
     
@@ -109,131 +109,10 @@ def extract_data(bmi:dict, args:argparse.ArgumentParser)->[np.ndarray, np.ndarra
     
     return ins_training, outs_training, time_training, ins_validation, outs_validation, time_validation, ins_testing, outs_testing, time_testing, folds
 
-def load_results_fig2(directory, ntraining_values):
-    """
-    Load results from multiple experiments.
+#################################################################
+#                   Hyperparameters Tools                       #
+#################################################################
 
-    :param directory: Directory containing result files
-    :param ntraining_values: List of training set sizes used in experiments
-    :return: DataFrame with results
-    """
-    results = []
-
-    files = [f for f in os.listdir("results/") if f.startswith("bmi_") and f.endswith(".pkl")]
-
-    for filename in files:
-
-        filename = "results/" + filename
-        print(f"load fname: '{filename}'")
-        
-        if os.path.exists(filename):
-            with open(filename, "rb") as fp:
-                data = pickle.load(fp)
-
-            match = re.search(r'Ntraining_(\d+)_', filename)
-            n = int(match.group(1)) if match else None
-
-            if n is not None:
-                results.append({
-                    "Ntraining": n,
-                    "FVAF_train": data["predict_training_eval"][1], 
-                    "RMSE_train": data["predict_training_eval"][2],  
-                    "FVAF_val": data["predict_validation_eval"][1],  
-                    "RMSE_val": data["predict_validation_eval"][2],  
-                    "FVAF_test": data["predict_testing_eval"][1],  
-                    "RMSE_test": data["predict_testing_eval"][2]
-                })
-            else:
-                print("Cannot parse Ntraining number in reading pkl fname to plot fig2")
-
-    if len(results) == 0:
-        print("No .pkl files found")
-        return None
-
-    return pd.DataFrame(results).sort_values("Ntraining")
-
-def plot_figure_2(ntraining_values:list=[1,2,3,4,6,8,11,14,18]):
-    """
-    Generate Figure 2: FVAF and RMSE vs. Training Set Size using Matplotlib.
-
-    :param ntraining_values: List of training set sizes used in experiments
-    """
-    
-    # Loading results
-    results_df = load_results_fig2("results", ntraining_values)
-
-    if results_df is None:
-        print("No results found");
-        return None;
-
-    # Plot figure 2a
-    
-    plt.figure(figsize=(10, 5))
-
-    plt.plot(results_df["Ntraining"], results_df["FVAF_train"], 'bo-', label="FVAF (Train)")
-    plt.plot(results_df["Ntraining"], results_df["FVAF_val"], 'go-', label="FVAF (Validation)")
-    plt.plot(results_df["Ntraining"], results_df["FVAF_test"], 'ro-', label="FVAF (Test)")
-    plt.ylabel("FVAF")
-    plt.xlabel("Number of Training Folds")
-    plt.legend()
-    plt.title("Figure 2a: FVAF vs. Training Set Size")
-
-    plt.savefig("figure_2a.png")
-
-    # Plot figure 2b
-    
-    plt.figure(figsize=(10, 5))
-
-    plt.plot(results_df["Ntraining"], results_df["RMSE_train"], 'bs--', label="RMSE (Train)")
-    plt.plot(results_df["Ntraining"], results_df["RMSE_val"], 'gs--', label="RMSE (Validation)")
-    plt.plot(results_df["Ntraining"], results_df["RMSE_test"], 'rs--', label="RMSE (Test)")
-    plt.ylabel("RMSE")
-    plt.xlabel("Number of Training Folds")
-    plt.legend()
-    plt.title("Figure 2b: RMSE vs. Training Set Size")
-
-    plt.savefig("figure_2b.png")
-
-    # Log to wandb
-    wandb.log({"Figure 2a": wandb.Image("figure_2a.png"), "Figure 2b": wandb.Image("figure_2b.png")})
-
-def plot_figure_1(time_testing, outs_testing, predict_testing):
-    """
-    Generates Figure 1: True Acceleration vs. Predicted Velocity (Shoulder & Elbow) using Matplotlib.
-
-    :param time_testing: (1498, 1) timestamps for the test fold.
-    :param outs_testing: (1498, 2) true acceleration (shoulder, elbow).
-    :param predict_testing: (1498, 2) predicted velocity (shoulder, elbow).
-    """
-
-    # Ensure time is a 1D array
-    time_testing = np.array(time_testing).flatten()
-
-    # Extract shoulder and elbow data separately
-    true_accel_shoulder = outs_testing[:, 0]  # First column
-    pred_vel_shoulder = predict_testing[:, 0]  # First column
-
-    # Stretch the x axis
-    plt.figure(figsize=(30, 5))
-    
-    # Plot true acceleration
-    plt.plot(time_testing, true_accel_shoulder, label="True Acceleration", linestyle="dashed")
-
-    # Plot predicted velocity
-    plt.plot(time_testing, pred_vel_shoulder, label="Predicted Velocity", linestyle="solid")
-
-    # Formatting
-    plt.xlabel("Time (s)")
-    plt.ylabel("Acceleration / Velocity")
-    plt.title("True Acceleration vs Predicted Velocity Over Time")
-    plt.legend()
-    plt.grid()
-
-    # Save and log to wandb
-    plt.savefig("figure_1.png")
-    wandb.log({"Figure 1": wandb.Image("figure_1.png")})
-
-    
 def exp_type_to_hyperparameters(args:argparse.ArgumentParser):
     '''
     Translate the exp_type into a hyperparameter set
@@ -309,7 +188,9 @@ def generate_fname(args, params_str):
     return "%s/%s_%s_%s%s_hidden_%s_%s"%(args.results_path, args.exp_type, args.label,
                                        predict_str, Lx_str, hidden_str, params_str)
 
-
+#################################################################
+#                         Experience                            #
+#################################################################
 
 def execute_exp(args:argparse.ArgumentParser=None):
     '''
@@ -326,12 +207,10 @@ def execute_exp(args:argparse.ArgumentParser=None):
         
     # Modify the args if an exp_index is specified
     params_str = augment_args(args)
-    
     print("Params:", params_str)
     
     # Compute output file name base
     fbase = generate_fname(args, params_str)
-    
     print("File name base:", fbase)
 
     # Output pickle file name
@@ -352,7 +231,6 @@ def execute_exp(args:argparse.ArgumentParser=None):
 
     # Extract the data sets.  This process uses rotation and Ntraining (among other exp args)
     ins_training, outs_training, time_training, ins_validation, outs_validation, time_validation, ins_testing, outs_testing, time_testing, folds = extract_data(bmi, args)
-    
 
     # Is this a test run?
     if(args.nogo):
@@ -412,76 +290,86 @@ def execute_exp(args:argparse.ArgumentParser=None):
         wandb_metrics_cb = wandb.keras.WandbMetricsLogger()
         cbs.append(wandb_metrics_cb)
     
-    # Learn
+    #####################################
+    #          Model Fitting            #
+    #####################################
+        
     history = model.fit(x=ins_training,
                         y=outs_training,
                         epochs=args.epochs,
                         verbose=args.verbose>=2,
                         validation_data=(ins_validation, outs_validation), 
                         callbacks=cbs)
-        
-    # Generate log data
-    results = {}
+
+    #####################################
+    #             Model log             #
+    #####################################
+    
+    results = {} # Log data
     results['args'] = args
     
-    results['predict_training'] = model.predict(ins_training)
+    results['folds'] = folds
+    results['history'] = history.history
 
-    # evaluate returns a tuple: (loss, fvaf, rmse)
+    ##     #####################################
+    ###    #          Model evaluation         #
+    ##     #####################################
+    
+    # Training evaluation
+    results['predict_training'] = model.predict(ins_training)
     results['predict_training_eval'] = model.evaluate(ins_training, outs_training)
     results['outs_training'] = outs_training
     results['time_training'] = time_training
+
+    # Validation evaluation
+    results['predict_validation'] = model.predict(ins_validation)
+    results['predict_validation_eval'] = model.evaluate(ins_validation, outs_validation)
+    results['outs_validation'] = outs_validation
+    results['time_validation'] = time_validation
+
+    # Testing evaluation
+    results['predict_testing'] = model.predict(ins_testing)
+    results['predict_testing_eval'] = model.evaluate(ins_testing, outs_testing)
+    results['outs_testing'] = outs_testing
+    results['time_testing'] = time_testing
+
     if not args.nowandb:
         wandb.log({
             'loss_training': results['predict_training_eval'][0],
             'fvaf_training': results['predict_training_eval'][1],
             'rmse_training': results['predict_training_eval'][2],
-        })
-    
-    results['predict_validation'] = model.predict(ins_validation)
-    results['predict_validation_eval'] = model.evaluate(ins_validation, outs_validation)
-    results['outs_validation'] = outs_validation
-    results['time_validation'] = time_validation
-    if not args.nowandb:
-        wandb.log({
             'loss_validation': results['predict_validation_eval'][0],
             'fvaf_validation': results['predict_validation_eval'][1],
             'rmse_validation': results['predict_validation_eval'][2],
-        })
-    
-    results['predict_testing'] = model.predict(ins_testing)
-    results['predict_testing_eval'] = model.evaluate(ins_testing, outs_testing)
-    results['outs_testing'] = outs_testing
-    results['time_testing'] = time_testing
-    if not args.nowandb:
-        wandb.log({
             'loss_testing': results['predict_testing_eval'][0],
             'fvaf_testing': results['predict_testing_eval'][1],
             'rmse_testing': results['predict_testing_eval'][2],
         })
-    
-    results['folds'] = folds
-    
-    results['history'] = history.history
 
-    if not args.nowandb:
         # Plot figure 1
         plot_figure_1(time_testing, outs_testing, results['predict_testing'])
     
-    # Save results
+    #####################################
+    #               Save                #
+    #####################################
+    
     results['fname_base'] = fbase
-    with open(fname_out, "wb") as fp:
-        pickle.dump(results, fp)
+
+    # Save pickle (.pkl) file
+    with open(fname_out, "wb") as fp: pickle.dump(results, fp)
     
     # Save the model (can't be included in the pickle file)
-    if args.save:
-        model.save("%s_model"%(fbase))
+    if args.save: model.save("%s_model"%(fbase))
 
     # Close out wandb
-    if not args.nowandb:
-        wandb.finish()
+    if not args.nowandb: wandb.finish()
 
     return model
-               
+
+#################################################################
+#                       Argument Parser                         #
+#################################################################
+
 def create_parser()->argparse.ArgumentParser:
     # Parse the command-line arguments
     parser = argparse.ArgumentParser(description='BMI Learner', fromfile_prefix_chars='@')
@@ -544,6 +432,10 @@ def create_parser()->argparse.ArgumentParser:
     
     return parser
 
+#################################################################
+#                          Check                                #
+#################################################################
+
 def check_args(args:argparse.ArgumentParser):
     '''
     Check that key arguments are within appropriate bounds.  Failing an assert causes a hard failure with meaningful output
@@ -594,6 +486,9 @@ def check_completeness(args:argparse.ArgumentParser):
     print("Missing indices (%d): %s"%(len(indices),','.join(str(x) for x in indices)))
 
 #################################################################
+#                          Main                                 #
+#################################################################
+
 if __name__ == "__main__":
     parser = create_parser()
     args = parser.parse_args()
