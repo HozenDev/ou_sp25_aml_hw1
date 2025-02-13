@@ -122,6 +122,9 @@ def load_results_fig2(directory, ntraining_values):
     files = [f for f in os.listdir("results/") if f.startswith("bmi_") and f.endswith(".pkl")]
 
     for filename in files:
+
+        print(f"load fname: '{filename}'")
+        
         if os.path.exists(filename):
             with open(filename, "rb") as fp:
                 data = pickle.load(fp)
