@@ -2,3 +2,9 @@
 /code/figure_*
 /code/results
 /code/wandb
+
+/submit
+
+/report/*
+!/report/report.org
+!/report/report.pdf

@@ -1,0 +1,112 @@
+* Setup :ignore:
+
+#+SETUPFILE: ~/public/hozen-style/latex/hozen.setup
+
+# Ensure that we respect org mode new line
+#+OPTIONS: \n:t
+
+# To disbale _ and ^ behaviour but keep ^{} and _{}
+#+OPTIONS: ^:{}
+
+#+LATEX_HEADER: \usepackage[linesnumbered]{algorithm2e} 
+
+* Page de garde :ignore:
+** Informations :ignore:
+
+#+AUTHOR: Author: Enzo Durel
+#+AUTHOR: \newline
+#+AUTHOR: 
+#+EMAIL: /
+#+TITLE: 5043 Advanced Machine Learning - HW 1
+#+OPTIONS: toc:nil
+
+** Logo :ignore:
+
+#+ATTR_LATEX: :width 10cm :align left
+[[file:~/orgmode_latex_export_img/ou_logo.png]]
+
+** newpage :noexport:
+
+#+begin_export latex
+\newpage
+#+end_export
+
+** Table des matières :ignore:
+
+#+LATEX: \thispagestyle{empty}
+#+TOC: headlines 3
+#+LATEX: \clearpage
+#+LATEX: \pagenumbering{arabic} 
+
+** Liste des figures :ignore:
+
+#+begin_export latex
+\thispagestyle{empty}
+\listoffigures
+\clearpage
+\pagenumbering{arabic} 
+#+end_export
+
+** Liste des algorithmes :noexport:
+
+#+begin_export latex
+\thispagestyle{empty}
+\listofalgorithms
+\clearpage
+\pagenumbering{arabic} 
+#+end_export
+
+** newpage :ignore:
+
+#+begin_export latex
+\newpage
+#+end_export
+
+* Design and Approach
+
+\noindent _Hidden activation function_: I choose to use the elu activation because the outputs can be negative and positive.
+_Output activation function_: I choose to use the linear activation because the outputs can be negative and positive but there is no specific range for an acceleration. In practice, I tried tanh but it did not work as well as the linear activation function.
+_Number of hidden layers_: I chose to have a really little number of hidden neural networks ([8, 4]). I tried different size of neural networks and choosing a higher number of hidden layer does not improve the accuracy enough to make the model more suitable. We can see that the model tend to overfit quickly, having higher hidden layers make the model overfitting. Moreover, I think this kind of model will be run in a real-time environment. Having a little dnn makes it less ressources  consumer, less power consumer and so more environment friendly. I chose hidden layers size a power of $2^{i}$ because there are some optimisations made on layer size power of 2.
+_Learning rate_: I opt for a lrate = 0.0001.
+_Epochs_: I opt for a maximal number of epochs of 300. The fitting process never exceed 150 epochs.
+_Patience_: I opt to reduce patience (50) because the model tend to overfit quickly and I did not want to wait for nothing to get results.
+_Output type_: I chose the "dtheta" output type because we want to predict the velocity.
+
+** newpage :ignore:
+
+#+begin_src latex
+  \newpage
+#+end_src
+
+* Plots
+** Figure 1
+
+Here is the figure plotting the true acceleration versus the predicted velocity on testing as a function of the timestamp. We can see that the model quite reproduce exactly what is the true acceleration.
+
+#+caption: True Acceleration vs Predicted Velocity Over Time
+#+attr_latex: :width \linewidth
+[[file:../img/figure_1.png]]
+
+** Figure 2a
+
+Here is the figure plotting the FVAF metric of the training, testing and validation sets as a function of the training set size. With a little of training set, we can see that the model is very accurate on the training set but not on the others. It is because we do not have a lot of input data points and so the model tend to overfit.
+
+As the number of training data points grows, the model is getting more accurate on validation and testing dataset but not on the training set because it tries to generalize.
+
+Consequently, the three curves converge in a similar fvaf.
+
+#+caption: FVAF vs. Training Set Size
+#+attr_latex: :width 12cm
+[[file:../img/figure_2a.png]]
+
+** Figure 2b
+
+Here is the figure plotting the RMSE metric of the training, testing and validation sets as a function of the training set size. With a little of training set, we can see that the model is very accurate (the loss is lower) on the training set but not on the others. It is because we do not have a lot of input data points as I explained before.
+
+As the number of training data points grows, the model is getting more accurate (the rmse ~ loss getting lower) on validation and testing dataset but not on the training set (it's getting higher) because it tries to generalize.
+
+Consequently, the three curves converge in a similar rmse.
+
+#+caption: RMSE vs. Training Set Size
+#+attr_latex: :width 12cm
+[[file:../img/figure_2b.png]]

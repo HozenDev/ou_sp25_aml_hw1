@@ -345,9 +345,6 @@ def execute_exp(args:argparse.ArgumentParser=None):
             'fvaf_testing': results['predict_testing_eval'][1],
             'rmse_testing': results['predict_testing_eval'][2],
         })
-
-        # Plot figure 1
-        plot_figure_1(time_testing, outs_testing, results['predict_testing'])
     
     #####################################
     #               Save                #
@@ -360,6 +357,11 @@ def execute_exp(args:argparse.ArgumentParser=None):
     
     # Save the model (can't be included in the pickle file)
     if args.save: model.save("%s_model"%(fbase))
+
+    # Plot figures
+    if not args.nowandb:
+        plot_figure_1(time_testing, outs_testing, results['predict_testing'])
+        plot_figure_2()
 
     # Close out wandb
     if not args.nowandb: wandb.finish()
@@ -524,7 +526,3 @@ if __name__ == "__main__":
     else:
         # Do the work
         execute_exp(args)
-
-        # Plot figure 2
-        if not args.nowandb:
-            plot_figure_2()
