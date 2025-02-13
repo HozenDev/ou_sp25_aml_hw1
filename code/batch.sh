@@ -58,5 +58,4 @@ python hw1.py --exp_type $EXPERIMENT_TYPE \
        --output_type dtheta \
        --patience 50 \
        --label "exp"
-       -vv
 

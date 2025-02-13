@@ -141,7 +141,11 @@ def load_results_fig2(directory, ntraining_values):
                 })
             else:
                 print("Cannot parse Ntraining number in reading pkl fname to plot fig2")
-    
+
+    if len(results) == 0:
+        print("No .pkl files found")
+        return None
+
     return pd.DataFrame(results).sort_values("Ntraining")
 
 def plot_figure_2(ntraining_values:list=[1,2,3,4,6,8,11,14,18]):
@@ -153,6 +157,10 @@ def plot_figure_2(ntraining_values:list=[1,2,3,4,6,8,11,14,18]):
     
     # Loading results
     results_df = load_results_fig2("results", ntraining_values)
+
+    if results_df is None:
+        print("No results found");
+        return None;
 
     # Plot figure 2a
     
