@@ -34,13 +34,13 @@
 conda activate dnn
 
 # Clean results repo and wandb
-./clean.sh 
+# ./clean.sh 
 
 # Define experiment parameters
 EXPERIMENT_TYPE='bmi'
 DATASET='/home/fagg/datasets/bmi/bmi_dataset.pkl'
 NTRAINING_VALUES=(1 2 3 4 6 8 11 14 18)
-ROTATION=5
+ROTATION=15
 EXP_INDEX=$SLURM_ARRAY_TASK_ID
 
 # --Ntraining ${NTRAINING_VALUES[$EXP_INDEX]} \  
