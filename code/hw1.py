@@ -462,8 +462,6 @@ def execute_exp(args:argparse.ArgumentParser=None):
     if not args.nowandb:
         # Plot figure 1
         plot_figure_1(time_testing, outs_testing, results['predict_testing'])
-        # Plot figure 2
-        plot_figure_2()
     
     # Save results
     results['fname_base'] = fbase
@@ -627,3 +625,7 @@ if __name__ == "__main__":
     else:
         # Do the work
         execute_exp(args)
+
+        # Plot figure 2
+        if not args.nowandb:
+            plot_figure_2()

@@ -12,7 +12,7 @@
 #
 
 #
-#SBATCH --partition=gpu
+#SBATCH --partition=normal
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
 
