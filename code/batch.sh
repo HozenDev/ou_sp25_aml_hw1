@@ -1,15 +1,6 @@
 #!/bin/bash
 
-# Andrew H. Fagg
-#
-# Example with one experiment
-#
-# When you use this batch file:
-#  Change the email address to yours! (I don't want email about your experiments!)
-#  Change the chdir line to match the location of where your code is located
-#
 # Reasonable partitions: debug_5min, debug_30min, normal, debug_gpu, gpu
-#
 
 #
 #SBATCH --partition=normal
