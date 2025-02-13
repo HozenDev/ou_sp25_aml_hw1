@@ -123,6 +123,7 @@ def load_results_fig2(directory, ntraining_values):
 
     for filename in files:
 
+        filename = "results/" + filename
         print(f"load fname: '{filename}'")
         
         if os.path.exists(filename):
