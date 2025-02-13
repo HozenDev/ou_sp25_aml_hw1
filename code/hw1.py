@@ -21,7 +21,7 @@ import pickle
 import argparse
 import os
 import sys
-
+import re
 
 # Keras3 way of doing things
 from keras.layers import InputLayer, Dense
@@ -34,14 +34,13 @@ tf_tools = "distribute/"
 
 sys.path.append(tf_tools)
 
-
-# NOT PROVIDED (you will have to create your own...)
-#  this imports the file deep_networks.py
+# Import model building tools
 from deep_networks import *
 
 # PROVIDED
 from symbiotic_metrics import *
 from job_control import *
+
 
 
 
@@ -110,6 +109,82 @@ def extract_data(bmi:dict, args:argparse.ArgumentParser)->[np.ndarray, np.ndarra
     
     return ins_training, outs_training, time_training, ins_validation, outs_validation, time_validation, ins_testing, outs_testing, time_testing, folds
 
+def load_results_fig2(directory, ntraining_values):
+    """
+    Load results from multiple experiments.
+
+    :param directory: Directory containing result files
+    :param ntraining_values: List of training set sizes used in experiments
+    :return: DataFrame with results
+    """
+    results = []
+
+    files = [f for f in os.listdir("results/") if f.startswith("bmi_") and f.endswith(".pkl")]
+
+    for filename in files:
+        if os.path.exists(filename):
+            with open(filename, "rb") as fp:
+                data = pickle.load(fp)
+
+            match = re.search(r'Ntraining_(\d+)_', filename)
+            n = int(match.group(1)) if match else None
+
+            if n is not None:
+                results.append({
+                    "Ntraining": n,
+                    "FVAF_train": data["predict_training_eval"][1], 
+                    "RMSE_train": data["predict_training_eval"][2],  
+                    "FVAF_val": data["predict_validation_eval"][1],  
+                    "RMSE_val": data["predict_validation_eval"][2],  
+                    "FVAF_test": data["predict_testing_eval"][1],  
+                    "RMSE_test": data["predict_testing_eval"][2]
+                })
+            else:
+                print("Cannot parse Ntraining number in reading pkl fname to plot fig2")
+    
+    return pd.DataFrame(results).sort_values("Ntraining")
+
+def plot_figure_2(ntraining_values:list=[1,2,3,4,6,8,11,14,18]):
+    """
+    Generate Figure 2: FVAF and RMSE vs. Training Set Size using Matplotlib.
+
+    :param ntraining_values: List of training set sizes used in experiments
+    """
+    
+    # Loading results
+    results_df = load_results_fig2("results", ntraining_values)
+
+    # Plot figure 2a
+    
+    plt.figure(figsize=(10, 5))
+
+    plt.plot(results_df["Ntraining"], results_df["FVAF_train"], 'bo-', label="FVAF (Train)")
+    plt.plot(results_df["Ntraining"], results_df["FVAF_val"], 'go-', label="FVAF (Validation)")
+    plt.plot(results_df["Ntraining"], results_df["FVAF_test"], 'ro-', label="FVAF (Test)")
+    plt.ylabel("FVAF")
+    plt.xlabel("Number of Training Folds")
+    plt.legend()
+    plt.title("Figure 2a: FVAF vs. Training Set Size")
+
+    plt.savefig("figure_2a.png")
+
+    # Plot figure 2b
+    
+    plt.figure(figsize=(10, 5))
+
+    plt.plot(results_df["Ntraining"], results_df["RMSE_train"], 'bs--', label="RMSE (Train)")
+    plt.plot(results_df["Ntraining"], results_df["RMSE_val"], 'gs--', label="RMSE (Validation)")
+    plt.plot(results_df["Ntraining"], results_df["RMSE_test"], 'rs--', label="RMSE (Test)")
+    plt.ylabel("RMSE")
+    plt.xlabel("Number of Training Folds")
+    plt.legend()
+    plt.title("Figure 2b: RMSE vs. Training Set Size")
+
+    plt.savefig("figure_2b.png")
+
+    # Log to wandb
+    wandb.log({"Figure 2a": wandb.Image("figure_2a.png"), "Figure 2b": wandb.Image("figure_2b.png")})
+
 def plot_figure_1(time_testing, outs_testing, predict_testing):
     """
     Generates Figure 1: True Acceleration vs. Predicted Velocity (Shoulder & Elbow) using Matplotlib.
@@ -156,7 +231,7 @@ def exp_type_to_hyperparameters(args:argparse.ArgumentParser):
     '''
     if args.exp_type == 'bmi':
         # HW 1
-        p = {'Ntraining': [1,2,3, 4, 5, 6, 7, 8, 9, 10], 
+        p = {'Ntraining': [1, 2, 3, 4, 6, 8, 11, 14, 18], 
              'rotation': [15]
              }
     else: 
@@ -377,7 +452,10 @@ def execute_exp(args:argparse.ArgumentParser=None):
     results['history'] = history.history
 
     if not args.nowandb:
+        # Plot figure 1
         plot_figure_1(time_testing, outs_testing, results['predict_testing'])
+        # Plot figure 2
+        plot_figure_2()
     
     # Save results
     results['fname_base'] = fbase
